@@ -221,5 +221,12 @@ WSMessage.prototype = {
       }
     }
     return false;
+  },
+
+  /**
+   * Remove all event listeners
+   */
+  purgeListeners : function() {
+    this.events = {};
   }
 }
