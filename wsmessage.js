@@ -135,7 +135,7 @@ WSMessage.prototype = {
   _onmessage : function(event) {
     try {
       var d = JSON.parse(event.data);
-      var eventName = d.type.toLowerCase();
+      var eventName = d.eventName.toLowerCase();
       this._fire(eventName, d, d.socketKey, d.pid);
     } catch(e) {
       console.error(e);
