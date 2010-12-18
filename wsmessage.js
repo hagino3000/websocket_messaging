@@ -30,7 +30,7 @@
  * Usage:
  * <code>
  * var ws = new WSMessage({
- *   url:"localhost:8080",
+ *   url:"ws://localhost:8080",
  *   listeners : {
  *     open : function(){console.info('onopen!!')},
  *     close : function(){console.info('onclose!!')}
@@ -110,9 +110,9 @@ WSMessage.prototype = {
     try {
       console.info('start open:' + this.config.url);
       this.ws = new WebSocket(this.config.url);
-      this.ws.onopen = lng.bind(this._onopen, this);
-      this.ws.onmessage = lng.bind(this._onmessage, this);
-      this.ws.onclose = lng.bind(this._onclose, this);
+      this.ws.onopen = this._bind(this._onopen, this);
+      this.ws.onmessage = this._bind(this._onmessage, this);
+      this.ws.onclose = this._bind(this._onclose, this);
     } catch (e) {
       console.error('Failed to open the websocket connection');
       console.error(e);
@@ -134,7 +134,6 @@ WSMessage.prototype = {
     try {
       var d = JSON.parse(event.data);
       var eventName = d.eventName.toLowerCase();
-      console.info('Data receive !!:' + eventName);
       this._fire(eventName, d, d.socketKey, d.pid);
     } catch(e) {
       console.error(e);
@@ -148,9 +147,9 @@ WSMessage.prototype = {
     data = data || {};
     var fns = this.events[eventName];
     if (fns) {
-      $.each(fns, function(idx, f) {
-        f.fn.call(f.scope, data.data, socketKey, pid); 
-      });
+      for (var i=0, len=fns.length; i<len; i++) {
+        fns[i].fn.call(fns[i].scope, data.data, socketKey, pid);
+      }
     }
   },
 
@@ -162,7 +161,7 @@ WSMessage.prototype = {
     this._fire('close');
     if (this.autoRecovery) {
       // retry after 10 seconds
-      setTimeout(lng.bind(this._open, this), 10000);
+      setTimeout(this._bind(this._open, this), 10000);
     }
   },
   
@@ -228,5 +227,14 @@ WSMessage.prototype = {
    */
   purgeListeners : function() {
     this.events = {};
+  },
+
+  // utilities
+  _bind : function(fn, thisObj, args) {
+    if (args == undefined) {
+      return function(){fn.apply(thisObj, arguments)}
+    } else {
+      return function(){fn.apply(thisObj, args)}
+    }
   }
 }
