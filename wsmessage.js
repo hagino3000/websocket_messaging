@@ -55,6 +55,8 @@
  * // close
  * ws.close();
  * </code>
+ *
+ * @see https://github.com/hagino3000/websocket_messaging
  */
 WSMessage = function(config) {
   WSMessage.prototype.initialize.call(this, config);
@@ -133,7 +135,7 @@ WSMessage.prototype = {
   _onmessage : function(event) {
     try {
       var d = JSON.parse(event.data);
-      var eventName = d.eventName.toLowerCase();
+      var eventName = d.type.toLowerCase();
       this._fire(eventName, d, d.socketKey, d.pid);
     } catch(e) {
       console.error(e);
